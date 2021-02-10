@@ -6,10 +6,10 @@ Observer = zeros(Nsamples, 3);
 Kalman = zeros(Nsamples,3);
 load simulatorOut
 dt = 1/30;
-   v=0.1;
-   w=  (20 * pi/ 180.0);
-for k=1:Nsamples
 
+for k=1:Nsamples
+    v=out.inputV.Data(k,:);
+    w=out.inputW.Data(k,:);
   %disp("Simulator");
    %disp(SimulatedValue(3));
   Simulator(k, :) = [ out.state.Data(k,1),out.state.Data(k,2),out.state.Data(k,3)];
