@@ -1,2 +1,2 @@
 # Kalman_filter
-This repository contain Kalman filters codes for an unicycle mobile robot type
+This folder contain the simulator and the codes to implement the extended kalman filter for a unicycle mobile robot type.
