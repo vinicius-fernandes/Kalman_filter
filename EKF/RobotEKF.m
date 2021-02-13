@@ -1,7 +1,7 @@
 function [PosXKalman,PosYKalman,ThetaKalman] = RobotEKF(z, rates, dt)
 %
 %
-persistent H R M
+persistent H R Q
 persistent x P
 persistent firstRun
 
@@ -10,8 +10,11 @@ if isempty(firstRun)
   H = eye(3);
   
 
-  M =  diag([0.00001^2,0.00001^2]);
-  R = diag([0.01^2,0.01^2,0.01^2]);
+  %M =  diag([0.00001^2,0.00001^2]);
+    Q = [ 0.00001^2  0       0;
+        0       0.00001^2  0;
+        0       0       0.00001^2 ];
+  R = diag([0.1^2,0.1^2,0.1^2]);
 
   x = [0 0 0].';  
   P = 0.1*eye(3);
@@ -21,10 +24,11 @@ end
 
 
 A = Ajacob(x, rates, dt);
-B= Bjacob(x, rates, dt);
+%B= Bjacob(x, rates, dt);
 xp = fx(x, rates, dt);
 
-Q=B*M*B.';
+%Q=B*M*B.';
+
 Pp = A*P*A' +Q ;
 
 K = (Pp*H')/(R+ H*Pp*H.');
@@ -66,7 +70,7 @@ xp = xdot;
 
 %------------------------------
 function A = Ajacob(xhat, rates, dt)
-%
+%Jacobian matrix of partial derivates of f to x 
 %
 EPISLON=10E-3;
 A = zeros(3, 3);
@@ -96,7 +100,7 @@ A(3,3)=1;
 
 %------------------------------
 function B = Bjacob(xhat, rates, dt)
-%
+%Jacobian matrix of partial derivates of f to w
 %
 EPISLON=10E-3;
 B = zeros(3, 2);

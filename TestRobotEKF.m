@@ -1,3 +1,4 @@
+addpath '.\EKF'
 clear all
 close all
 Nsamples = 1000;
