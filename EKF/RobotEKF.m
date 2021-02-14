@@ -8,9 +8,6 @@ persistent firstRun
 
 if isempty(firstRun)
   H = eye(3);
-  
-
-  %M =  diag([0.00001^2,0.00001^2]);
     Q = [ 0.00001^2  0       0;
         0       0.00001^2  0;
         0       0       0.00001^2 ];
@@ -22,18 +19,20 @@ if isempty(firstRun)
   firstRun = 1;  
 end
 
-
+%Compute jacobian
 A = Ajacob(x, rates, dt);
-%B= Bjacob(x, rates, dt);
+
+%Predict state and covariance
 xp = fx(x, rates, dt);
-
-%Q=B*M*B.';
-
 Pp = A*P*A' +Q ;
 
+%Compute kalman gain
 K = (Pp*H')/(R+ H*Pp*H.');
 
+%Calculation of the estimate
 x = xp + K*(z - xp);
+
+%Calculation of the covariance
 P = Pp - K*H*Pp;
 
 
@@ -42,6 +41,7 @@ PosYKalman    = x(2);
 ThetaKalman   = x(3);
 
 
+%Predict
 %------------------------------
 function xp = fx(xhat, rates, dt)
 %
@@ -53,6 +53,7 @@ w=rates(2);
 
 EPISLON=10E-3;
 xdot= zeros(3,1);
+%Avoid zero division
 if(abs(w)<EPISLON)
 xdot(1)=xhat(1)+ v * dt * cos(theta + (w * dt / 2.0));
 xdot(2)=xhat(2)+ v * dt * sin(theta + (w * dt / 2.0));
@@ -80,6 +81,7 @@ w=rates(2);
 
 A(1,1)=1;
 A(1,2)=0;
+%Avoid zero division
 if(abs(w)<EPISLON)
     A(1,3)= -v * dt * sin(theta + (w * dt / 2.0));
 else
@@ -98,32 +100,7 @@ A(3,1)=0;
 A(3,2)=0;
 A(3,3)=1;
 
-%------------------------------
-function B = Bjacob(xhat, rates, dt)
-%Jacobian matrix of partial derivates of f to w
-%
-EPISLON=10E-3;
-B = zeros(3, 2);
 
-v= rates(1);
-w= rates(2);
-
-theta=xhat(3);
-
-if(abs(w)<EPISLON)
-    B(1,1)=dt * cos(theta + w * dt / 2.0);
-    B(1,2)=-v * (dt * dt / 2.0) * sin(theta + (w * dt / 2.0));
-    B(2,1)=dt * sin(theta + w * dt / 2.0);
-    B(2,2)= v * (dt * dt / 2.0) * sin(theta + (w * dt / 2.0));
-else
-    B(1,1)=(2.0 / w) * cos(theta + (w * dt / 2.0)) * sin(w * dt / 2.0);
-    B(1,2)=-2.0 * (v / (w * w)) * cos(theta + (w * dt / 2.0)) * sin(w * dt / 2.0) + (v / w) * dt * cos(theta + (w * dt));
-    B(2,1)= (2.0 / w) * sin(theta + (w * dt / 2.0)) * sin(w * dt / 2.0);
-    B(2,2)=  -2.0 * (v / (w * w)) * sin(theta + (w * dt / 2.0)) * sin(w * dt / 2.0) + (v / w) * dt * sin(theta + w * dt);
-end
-
-B(3,1)=0;
-B(3,2)=dt;
 
 
 
